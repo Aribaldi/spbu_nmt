@@ -18,10 +18,13 @@ def yield_tokens(data_iter:Iterable, language:str) -> List[str]:
         yield token_transform[language](data_sample[language_index[language]])
 
 
-def get_vocab_transforms():
-    for ln in [SRC_LANGUAGE, TGT_LANGUAGE]:
+def get_vocab_transforms(dataset_type='30k'):
+    if dataset_type == 'both':
         train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
-                    IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+                IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    elif dataset_type == '30k':
+        train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    for ln in [SRC_LANGUAGE, TGT_LANGUAGE]:
         vocab_transform[ln] = build_vocab_from_iterator(yield_tokens(train_iter, ln),
                                                     min_freq=1,
                                                     specials=special_symbols,
@@ -31,7 +34,7 @@ def get_vocab_transforms():
         vocab_transform[ln].set_default_index(UNK_IDX)
     return vocab_transform
 
-vocab_transform = get_vocab_transforms()
+vocab_transform = get_vocab_transforms(dataset_type='both')
 
 if __name__ == '__main__':
     temp = token_transform['en']("To be or not to be; that's the question")

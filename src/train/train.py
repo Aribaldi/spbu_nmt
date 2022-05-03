@@ -6,11 +6,14 @@ from src.preprocessing import SRC_LANGUAGE, TGT_LANGUAGE, collate_fn
 from .utils import create_mask
 
 
-def train_epoch(model, optimizer, loss_fn):
+def train_epoch(model, optimizer, loss_fn, dataset_type='30k'):
     model.train()
     losses = 0
-    train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
-                 IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    if dataset_type == 'both':
+        train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
+                    IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    elif dataset_type == '30k':
+        train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
     train_dataloader = DataLoader(train_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
 
     for src, tgt in train_dataloader:
@@ -42,12 +45,14 @@ def train_epoch(model, optimizer, loss_fn):
     return losses / ( TRAIN_LEN / BATCH_SIZE)
 
 
-def evaluate(model, loss_fn):
+def evaluate(model, loss_fn, dataset_type='30k'):
     model.eval()
     losses = 0
-
-    val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
-               IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    if dataset_type == 'both':
+        val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
+                IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+    elif dataset_type == '30k':
+        val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
     val_dataloader = DataLoader(val_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
 
     for src, tgt in val_dataloader:
