@@ -1,22 +1,13 @@
 import torch
-from torch.utils.data import DataLoader
-from torchtext.datasets import Multi30k, IWSLT2016
-from .config import DEVICE, BATCH_SIZE, NUM_WORKERS, TRAIN_LEN, VAL_LEN
-from src.preprocessing import SRC_LANGUAGE, TGT_LANGUAGE, collate_fn
+from .config import DEVICE, BATCH_SIZE
 from .utils import create_mask
 
 
-def train_epoch(model, optimizer, loss_fn, dataset_type='30k'):
+def train_epoch(model, iterator, iter_len, optimizer, loss_fn):
     model.train()
     losses = 0
-    if dataset_type == 'both':
-        train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
-                    IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-    elif dataset_type == '30k':
-        train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-    train_dataloader = DataLoader(train_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
 
-    for src, tgt in train_dataloader:
+    for src, tgt in iterator:
         src = src.to(DEVICE)
         tgt = tgt.to(DEVICE)
 
@@ -30,32 +21,24 @@ def train_epoch(model, optimizer, loss_fn, dataset_type='30k'):
 
         tgt_out = tgt[1:, :]
         tgt_out = tgt_out.to(torch.int64)
-        #logits = logits.to(torch.int64)
         try:
             loss = loss_fn(logits.reshape(-1, logits.shape[-1]), tgt_out.reshape(-1))
         except:
             print('error')
             print(logits.dtype,tgt_out.dtype)
-            #print(logits, tgt_out) 
         loss.backward()
 
         optimizer.step()
         losses += loss.item()
 
-    return losses / ( TRAIN_LEN / BATCH_SIZE)
+    return losses / ( iter_len / BATCH_SIZE)
 
 
-def evaluate(model, loss_fn, dataset_type='30k'):
+def evaluate(model, iterator, iter_len, loss_fn):
     model.eval()
     losses = 0
-    if dataset_type == 'both':
-        val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE)) + \
-                IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-    elif dataset_type == '30k':
-        val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-    val_dataloader = DataLoader(val_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
 
-    for src, tgt in val_dataloader:
+    for src, tgt in iterator:
         src = src.to(DEVICE)
         tgt = tgt.to(DEVICE)
 
@@ -69,4 +52,4 @@ def evaluate(model, loss_fn, dataset_type='30k'):
         loss = loss_fn(logits.reshape(-1, logits.shape[-1]), tgt_out.reshape(-1))
         losses += loss.item()
 
-    return losses / ( VAL_LEN / BATCH_SIZE)
+    return losses / ( iter_len / BATCH_SIZE)
