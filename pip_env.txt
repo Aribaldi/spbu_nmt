@@ -27,11 +27,9 @@ cryptography
 cycler 
 cymem 
 dataclasses 
-de-core-news-lg 
-debugpy 
+debugpy
 decorator 
 defusedxml==0.7.1
-en-core-web-lg 
 entrypoints==0.3
 executing 
 fastjsonschema 
@@ -109,7 +107,7 @@ PyJWT
 pyOpenSSL 
 pyparsing 
 PyQt5==5.12.3
-PyQt5-sip==4.19.18
+PyQt5-sip==12.7.0
 PyQtChart==5.12
 PyQtWebEngine==5.12.1
 pyrsistent 

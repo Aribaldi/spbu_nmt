@@ -38,7 +38,8 @@ def train_wrapper(last_epoch,epochs_num, model, train_dl, val_dl,  optimizer, lo
     print(f'Starting from epoch: {last_epoch}')
     for epoch in range(last_epoch + 1, last_epoch + epochs_num + 1):
         start_time = time.time()
-        train_loss = train_epoch(model, train_dl, train_len,  optimizer, loss_fn)
+        train_loss = train_epoch(model, train_dl, train_len,  optimizer, loss_fn, writer, epoch)
+        print('Finished train epoch')
         val_loss = evaluate(model, val_dl, val_len, loss_fn)
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
@@ -64,7 +65,7 @@ if __name__ == '__main__':
     val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 
 
-    if vars(args).get('ds_type'):
+    if vars(args).get('ds_type') != '30k':
         train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
         val_iter +=  IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 

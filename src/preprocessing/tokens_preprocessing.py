@@ -8,8 +8,8 @@ from .config import TGT_LANGUAGE, SRC_LANGUAGE, special_symbols, UNK_IDX, MIN_FR
 token_transform = {}
 vocab_transform = {}
 
-token_transform[SRC_LANGUAGE] = get_tokenizer('spacy', language='de_core_news_lg')
-token_transform[TGT_LANGUAGE] = get_tokenizer('spacy', language='en_core_web_lg')
+token_transform[SRC_LANGUAGE] = get_tokenizer('spacy', language='de_core_news_sm')
+token_transform[TGT_LANGUAGE] = get_tokenizer('spacy', language='en_core_web_sm')
 
 def yield_tokens(data_iter:Iterable, language:str) -> List[str]:
     language_index = {SRC_LANGUAGE:0, TGT_LANGUAGE:1}
