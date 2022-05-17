@@ -1,8 +1,8 @@
 import torch
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 EMB_SIZE = 256
-NHEAD = 4
-FFN_HID_DIM = 256
+NHEAD = 8
+FFN_HID_DIM = 512
 NUM_ENCODER_LAYERS = 3
 NUM_DECODER_LAYERS = 3
 NUM_WORKERS = 0
@@ -13,5 +13,5 @@ S2S_ENC_HID_DIM = 512
 S2S_DEC_HID_DIM = 512
 S2S_ENC_DROPOUT = 0.5
 S2S_DEC_DROPOUT = 0.5
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 # BATCH_SIZE = 4

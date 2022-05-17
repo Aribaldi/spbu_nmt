@@ -8,9 +8,8 @@ def train_epoch(model, iterator, iter_len, optimizer, loss_fn, writer, epoch_num
     model.train()
     losses = 0
 
-    batches = list(iterator)
-    index = epoch_num * len(batches)
-    for src, tgt in tqdm(batches):
+    index = epoch_num * iter_len // BATCH_SIZE
+    for src, tgt in tqdm(iterator, total=iter_len // BATCH_SIZE):
         src = src.to(DEVICE)
         tgt = tgt.to(DEVICE)
 
@@ -19,6 +18,8 @@ def train_epoch(model, iterator, iter_len, optimizer, loss_fn, writer, epoch_num
         src_mask, tgt_mask, src_padding_mask, tgt_padding_mask = create_mask(src, tgt_input)
 
         logits = model(src, tgt_input, src_mask, tgt_mask, src_padding_mask, tgt_padding_mask, src_padding_mask)
+        if index == 0:
+            writer.add_graph(model, src)
 
         optimizer.zero_grad()
 

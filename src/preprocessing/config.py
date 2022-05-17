@@ -4,4 +4,4 @@ TGT_LANGUAGE = 'en'
 UNK_IDX, PAD_IDX, BOS_IDX, EOS_IDX = 0, 1, 2, 3
 special_symbols = ['<unk>', '<pad>', '<bos>', '<eos>']
 TRIM_THRESH = 20
-MIN_FREQ = 2
+MIN_FREQ = 1
