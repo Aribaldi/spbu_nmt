@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     if vars(args).get('ds_type'):
         train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-        val_iter +=  IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+        val_iter += IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 
     temp = [el for el in train_iter] #shame, but dunno how to extract len from default ZipperIterDataPipe in another way
     train_len = len(temp) - 1
