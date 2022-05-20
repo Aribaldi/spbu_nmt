@@ -47,7 +47,7 @@ def train_wrapper(last_epoch, epochs_num, model, train_dl, val_dl, optimizer, cr
     print(f'Starting from epoch: {last_epoch}')
     for epoch in range(last_epoch + 1, last_epoch + epochs_num + 1):
         start_time = time.time()
-        train_loss = train(model, train_dl, train_len, optimizer, criterion, clip)
+        train_loss = train(model, train_dl, train_len, optimizer, criterion, clip, writer, epoch)
         valid_loss = evaluate(model, val_dl, val_len, criterion)
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
@@ -58,7 +58,7 @@ def train_wrapper(last_epoch, epochs_num, model, train_dl, val_dl, optimizer, cr
                         'epoch': epoch},
                         MODELS_PATH / run_name / 'seq2seq.tar')
             print('## Vall loss decreased, model successfully saved ##')
-        print(f'Epoch: {epoch+1:02} | Time: {epoch_mins}m {epoch_secs}s')
+        print(f'Epoch: {epoch:02} | Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
     writer.flush()
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     val_iter = Multi30k(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 
 
-    if vars(args).get('ds_type'):
+    if vars(args).get('ds_type') != '30k':
         train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
         val_iter += IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 

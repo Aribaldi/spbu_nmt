@@ -42,11 +42,11 @@ def translate(model: torch.nn.Module, src_sentence: str, vocab_transform, text_t
 
 
 train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+#train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 train_iter = list(iter(train_iter))
 
 test_iter = Multi30k(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-test_iter += IWSLT2016(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+#test_iter += IWSLT2016(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 test_iter = list(iter(test_iter))
 
 vocab_transform = get_vocab_transforms(train_iter)
@@ -55,13 +55,13 @@ TGT_VOCAB_SIZE = len(vocab_transform[TGT_LANGUAGE])
 
 transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                  NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
-checkpoint = torch.load('../../data/interim/transformer_runs/0-100_large/transf_cp.tar')
+checkpoint = torch.load('../../data/interim/transformer_runs/0-20_default/transf_cp.tar')
 epoch = checkpoint['epoch']
 transformer.load_state_dict(checkpoint['model_state_dict'])
 transformer = transformer.to(DEVICE)
 
 
 for i in range(0, 50):
-    sentence = train_iter[i]
+    sentence = test_iter[i]
     print(f'Sentence: \"{sentence}\"')
     print(translate(transformer, sentence[0], vocab_transform, text_transform(vocab_transform)))

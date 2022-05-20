@@ -1,20 +1,24 @@
 import torch
 from .config import BATCH_SIZE, DEVICE
+from tqdm import tqdm
 
 
-def train(model, iterator, iter_len, optimizer, criterion, clip):
+def train(model, iterator, iter_len, optimizer, criterion, clip, writer, epoch_num):
     
     model.train()
     
     epoch_loss = 0
+
+    index = epoch_num * iter_len // BATCH_SIZE
     
-    for _, batch in enumerate(iterator):
+    for batch in tqdm(iterator, total=iter_len // BATCH_SIZE):
         
         src = batch[0]
         trg = batch[1]
 
         src = src.to(DEVICE)
         trg = trg.to(DEVICE)
+        #writer.add_graph(model, [src, trg])
         
         optimizer.zero_grad()
         
@@ -40,6 +44,9 @@ def train(model, iterator, iter_len, optimizer, criterion, clip):
         optimizer.step()
         
         epoch_loss += loss.item()
+
+        writer.add_scalars('Batch loss', {'Training': loss.item()}, index)
+        index += 1
         
     return epoch_loss / (iter_len / BATCH_SIZE)
 
