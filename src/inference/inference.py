@@ -55,7 +55,7 @@ TGT_VOCAB_SIZE = len(vocab_transform[TGT_LANGUAGE])
 
 transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                  NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
-checkpoint = torch.load('../../data/interim/transformer_runs/0-20_default/transf_cp.tar')
+checkpoint = torch.load('../../data/interim/transformer_runs/0-100_default/transf_cp.tar')
 epoch = checkpoint['epoch']
 transformer.load_state_dict(checkpoint['model_state_dict'])
 transformer = transformer.to(DEVICE)
