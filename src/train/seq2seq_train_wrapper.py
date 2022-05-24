@@ -21,6 +21,7 @@ import math
 import argparse
 from pathlib import Path
 from functools import partial
+import torchdata.datapipes as dp
 
 
 MODELS_PATH = Path('../../data/interim/s2s_runs')
@@ -74,6 +75,26 @@ if __name__ == '__main__':
     if vars(args).get('ds_type') != '30k':
         train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
         val_iter += IWSLT2016(split='valid', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+
+
+    def get_sentence_len(line):
+        return len(line.split())
+
+
+    def filter_long_lines(line: str):
+        de_line, en_line = line
+        return get_sentence_len(de_line) < TRIM_THRESH and len(de_line) > 0
+
+
+    train_iter = dp.iter.Filter(train_iter, filter_long_lines)
+    val_iter = dp.iter.Filter(val_iter, filter_long_lines)
+
+    # train_iter = dp.iter.Enumerator(dp.iter.Header(train_iter)) # TODO: bug in torchdata IterToMapDataPipeConverter
+    # train_iter = dp.map.IterToMapConverter(train_iter)
+    # val_iter = dp.iter.Enumerator(val_iter)
+    # val_iter = dp.map.IterToMapConverter(val_iter)
+    # train_len = len(train_iter)
+    # val_len = len(val_iter)
 
     temp = [el for el in train_iter] #shame, but dunno how to extract len from default ZipperIterDataPipe in another way
     train_len = len(temp) - 1
