@@ -1,11 +1,12 @@
+import torchdata.datapipes as dp
 from torchtext.datasets import Multi30k, IWSLT2016
 
 from src.models.transformer import Seq2SeqTransformer
+from src.preprocessing.collation import text_transform
 from src.preprocessing.config import *
 from src.preprocessing.tokens_preprocessing import get_vocab_transforms
 from src.train.config import *
 from src.train.utils import generate_square_subsequent_mask
-from src.preprocessing.collation import text_transform
 
 
 def greedy_decode(model, src, src_mask, max_len, start_symbol):
@@ -42,12 +43,24 @@ def translate(model: torch.nn.Module, src_sentence: str, vocab_transform, text_t
 
 
 train_iter = Multi30k(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-#train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+train_iter += IWSLT2016(split='train', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 train_iter = list(iter(train_iter))
 
 test_iter = Multi30k(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
-#test_iter += IWSLT2016(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
+test_iter += IWSLT2016(split='test', language_pair=(SRC_LANGUAGE, TGT_LANGUAGE))
 test_iter = list(iter(test_iter))
+
+
+def get_sentence_len(line):
+    return len(line.split())
+
+
+def filter_long_lines(line: str):
+    de_line, en_line = line
+    return get_sentence_len(de_line) < TRIM_THRESH and len(de_line) > 0
+
+
+train_iter = dp.iter.Filter(train_iter, filter_long_lines)
 
 vocab_transform = get_vocab_transforms(train_iter)
 SRC_VOCAB_SIZE = len(vocab_transform[SRC_LANGUAGE])
@@ -55,11 +68,10 @@ TGT_VOCAB_SIZE = len(vocab_transform[TGT_LANGUAGE])
 
 transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                  NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
-checkpoint = torch.load('../../data/interim/transformer_runs/0-100_default/transf_cp.tar')
+checkpoint = torch.load('../../data/interim/transformer_runs/0-100_large/transf_cp.tar')
 epoch = checkpoint['epoch']
 transformer.load_state_dict(checkpoint['model_state_dict'])
 transformer = transformer.to(DEVICE)
-
 
 for i in range(0, 50):
     sentence = test_iter[i]
